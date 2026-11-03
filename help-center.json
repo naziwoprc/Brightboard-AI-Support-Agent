@@ -1,0 +1,92 @@
+[
+  {
+    "id": "billing-update-payment-method",
+    "title": "Update your payment method",
+    "body": "Go to Settings > Billing > Payment method and click Edit. We accept Visa, Mastercard and American Express. PayPal and bank transfers are not supported on Pro and Team plans. Changes apply to your next charge and do not trigger a new charge."
+  },
+  {
+    "id": "billing-failed-payment",
+    "title": "If a payment fails",
+    "body": "If your card is declined or expired, we retry the charge 3 times over 7 days and email the workspace owner each time. Update your card under Settings > Billing > Payment method; we retry right away after you save. If all retries fail, the workspace moves to the Free plan and your data is kept for 60 days. Some banks decline online subscription charges, so contact your bank and ask it to allow charges from Brightboard."
+  },
+  {
+    "id": "billing-invoices-vat",
+    "title": "Invoices, company name and VAT ID",
+    "body": "Invoices are under Settings > Billing > Invoices as PDF downloads. To add a company name, billing address or VAT ID, edit Billing details; changes apply to future invoices only. Issued invoices cannot be edited, but support can reissue an invoice within 90 days if the company name was wrong."
+  },
+  {
+    "id": "billing-duplicate-charge",
+    "title": "Charged twice?",
+    "body": "A pending authorization hold on your statement is not a second charge, and it usually disappears within 3-5 business days. If you see two completed charges for the same billing period, contact support. Confirmed duplicate charges are always refunded in full, within 5-10 business days after we confirm them."
+  },
+  {
+    "id": "refund-policy",
+    "title": "Refund policy",
+    "body": "Annual plans: full refund within 30 days of purchase or renewal. Monthly plans: no refund for the current month and no partial refunds for unused time; cancel to stop future charges. Duplicate or incorrect charges are always refunded. If you cancelled before the renewal date and were still charged, we refund that charge. Refunds go back to the original payment method and take 5-10 business days to appear."
+  },
+  {
+    "id": "cancel-subscription",
+    "title": "Cancel your subscription",
+    "body": "Go to Settings > Billing > Cancel plan. Only workspace owners can cancel. You keep paid features until the end of the current billing period, then the workspace moves to the Free plan. Your data is kept, and cancelling does not delete your account."
+  },
+  {
+    "id": "change-plan",
+    "title": "Change or upgrade your plan",
+    "body": "Billing is per user: each member counts as a seat, so adding teammates raises your monthly total. Upgrades (for example Pro to Team) take effect immediately and you pay a prorated amount for the rest of the period. Downgrades take effect at the end of the current period."
+  },
+  {
+    "id": "reset-password",
+    "title": "Reset your password",
+    "body": "On the login page choose Forgot password and enter your email. The reset link is valid for 1 hour and the email can take up to 10 minutes, so check your spam folder. If the link says it has expired, request a new one and use only the newest email. After 5 failed login attempts your account is locked for 15 minutes. If you suspect someone else accessed your account, reset your password right away and contact support."
+  },
+  {
+    "id": "two-factor-lost-device",
+    "title": "Lost access to your authenticator",
+    "body": "Use one of your backup codes to sign in, then set up two-factor again in Settings > Security. If you have no backup codes, support must verify your identity before two-factor can be turned off. This takes up to 2 business days. Support will never ask for your password."
+  },
+  {
+    "id": "change-email",
+    "title": "Change your account email",
+    "body": "Go to Settings > Profile > Email, enter the new address, and click the confirmation link we send there. You keep signing in with the old email until you confirm. Members change their own email; workspace owners cannot change it for them."
+  },
+  {
+    "id": "import-csv",
+    "title": "Import tasks from a CSV file",
+    "body": "Open a board and choose Import > CSV. The required column is Title. Optional columns: Description, Due date (format YYYY-MM-DD) and Assignee email. You can import up to 5,000 rows at once. If the import stops with an error, check the row number in the message; the most common cause is a date that is not in YYYY-MM-DD format."
+  },
+  {
+    "id": "sync-troubleshooting",
+    "title": "Sync problems",
+    "body": "Check status.brightboard.example first. Then refresh the page or force-close the app, make sure you are on the latest version, and sign out and back in. Browser extensions such as ad blockers can block syncing, so try a private window. The mobile apps work offline, and changes made offline sync when you reconnect. The web app needs a connection."
+  },
+  {
+    "id": "export-data",
+    "title": "Export your data",
+    "body": "Go to Settings > Workspace > Export and choose JSON or CSV. We email you a download link that stays valid for 7 days. Exports can take up to 30 minutes for large workspaces. If you get an error, try again with a smaller board selection or contact support."
+  },
+  {
+    "id": "slack-integration",
+    "title": "Connect Slack",
+    "body": "Go to Settings > Integrations > Slack and click Connect. You need to be a Slack workspace admin to approve the app. Pick a channel for notifications. If notifications stop after reconnecting, remove the Brightboard app from Slack, disconnect in Brightboard, then connect again and re-select the channel."
+  },
+  {
+    "id": "delete-account-privacy",
+    "title": "Delete your account and privacy requests",
+    "body": "To delete your account go to Settings > Account > Delete account. Deletion becomes final after a 30-day recovery period. Requests under GDPR or other privacy laws, such as a copy of your personal data, are handled by our privacy team and need identity verification. Contact privacy@brightboard.example. Support agents cannot process these requests directly."
+  },
+  {
+    "id": "mobile-app-crash",
+    "title": "App crashes on mobile",
+    "body": "Brightboard needs iOS 15 or later, or Android 10 or later. Update the app, restart your device, and if it still crashes, uninstall and reinstall. Your data is stored in your account and is not lost. If it keeps crashing, send us your device model and OS version."
+  },
+  {
+    "id": "notification-settings",
+    "title": "Manage notifications and reminders",
+    "body": "Settings > Notifications lets you turn email, push and Slack notifications on or off per type (comments, mentions, due dates). To get a due-date reminder, open the card, click Due date, and choose a reminder time. If emails do not arrive, check your spam folder and add notifications@brightboard.example to your contacts."
+  },
+  {
+    "id": "invite-teammates",
+    "title": "Invite teammates and roles",
+    "body": "Open a board, click Share and enter email addresses. Invite links expire after 7 days, so send a new one if it has expired. Roles: Admin can manage billing and members, Member can edit boards, and Guest can view and comment on boards they are invited to. Guests do not count as seats."
+  }
+]

@@ -1,0 +1,731 @@
+[
+  {
+    "id": 1,
+    "text": "I'm locked out after too many login attempts.",
+    "category": "account_access",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "reset-password",
+    "should_escalate": false
+  },
+  {
+    "id": 2,
+    "text": "What's the difference between Member and Guest roles?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "invite-teammates",
+    "should_escalate": false
+  },
+  {
+    "id": 3,
+    "text": "CSV import keeps failing at row 300 with 'invalid date format'.",
+    "category": "bug",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "import-csv",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "A troubleshooting question answered by a how-to article. Labeled bug because an error occurs."
+  },
+  {
+    "id": 4,
+    "text": "Your product is great, just wanted to say thanks to the team!",
+    "category": "other",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 5,
+    "text": "Where can I change the email address on my account?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "change-email",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "The user is logged in, so this is how_to and not account_access."
+  },
+  {
+    "id": 6,
+    "text": "How long does a refund take to show up on my card?",
+    "category": "refund",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "refund-policy",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "A question about refunds is labeled refund."
+  },
+  {
+    "id": 7,
+    "text": "I was charged twice for my March subscription. Please fix this today.",
+    "category": "billing",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "billing-duplicate-charge",
+    "should_escalate": false
+  },
+  {
+    "id": 8,
+    "text": "Refund me. I bought the annual plan 4 months ago and the app is too slow.",
+    "category": "refund",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "refund-policy",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "Outside the 30-day window. Category is still refund, and the reply must decline politely."
+  },
+  {
+    "id": 9,
+    "text": "Refund request: bought the Team plan 2 days ago by mistake, I wanted Pro.",
+    "category": "refund",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "refund-policy",
+    "should_escalate": false
+  },
+  {
+    "id": 10,
+    "text": "I've been billed $120 for a full year but I thought I signed up monthly. This is not what I agreed to!!",
+    "category": "refund",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "refund-policy",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "The customer implies they want money back but never says 'refund'."
+  },
+  {
+    "id": 11,
+    "text": "No puedo iniciar sesión, olvidé mi contraseña.",
+    "category": "account_access",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "reset-password",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "Spanish ticket."
+  },
+  {
+    "id": 12,
+    "text": "I'm the workspace owner and I'm leaving the company. How do I transfer ownership?",
+    "category": "account_access",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Could be read as how_to. Labeled account_access because it is about who controls the account."
+  },
+  {
+    "id": 13,
+    "text": "Under GDPR I request a copy of all personal data you hold about me.",
+    "category": "other",
+    "priority": "medium",
+    "needs_human": true,
+    "article_id": "delete-account-privacy",
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Privacy-law request. Handled only by the privacy team."
+  },
+  {
+    "id": 14,
+    "text": "Can I import my tasks from a spreadsheet?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "import-csv",
+    "should_escalate": false
+  },
+  {
+    "id": 15,
+    "text": "The page loads forever on Safari. Chrome works fine.",
+    "category": "bug",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 16,
+    "text": "Do you accept PayPal or only credit cards?",
+    "category": "billing",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "billing-update-payment-method",
+    "should_escalate": false
+  },
+  {
+    "id": 17,
+    "text": "If I cancel, do I lose access right away or at the end of the month?",
+    "category": "billing",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "cancel-subscription",
+    "should_escalate": false
+  },
+  {
+    "id": 18,
+    "text": "I can't sign in with Google anymore. It just loops back to the login page.",
+    "category": "account_access",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 19,
+    "text": "Can I use Brightboard offline?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "sync-troubleshooting",
+    "should_escalate": false
+  },
+  {
+    "id": 20,
+    "text": "Hi, where can I download the invoice for last month? My accountant needs it.",
+    "category": "billing",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "billing-invoices-vat",
+    "should_escalate": false
+  },
+  {
+    "id": 21,
+    "text": "I lost all my cards!!! My board is EMPTY. We have a client presentation in an hour!!",
+    "category": "bug",
+    "priority": "high",
+    "needs_human": true,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Possible data loss. Always a human."
+  },
+  {
+    "id": 22,
+    "text": "Can I have more than one workspace under the same login?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 23,
+    "text": "Please refund my last payment, I wasn't using the product.",
+    "category": "refund",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "refund-policy",
+    "should_escalate": false
+  },
+  {
+    "id": 24,
+    "text": "I was charged for a renewal I didn't want. I forgot to cancel. Can I get my money back?",
+    "category": "refund",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "refund-policy",
+    "should_escalate": false
+  },
+  {
+    "id": 25,
+    "text": "I get 'Something went wrong' when I try to export my board.",
+    "category": "bug",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "export-data",
+    "should_escalate": false
+  },
+  {
+    "id": 26,
+    "text": "Dates on my cards show one day earlier than the date I set.",
+    "category": "bug",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 27,
+    "text": "My lawyer will be contacting you about the data you hold on me.",
+    "category": "other",
+    "priority": "high",
+    "needs_human": true,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Legal threat. Needs a human."
+  },
+  {
+    "id": 28,
+    "text": "I'm going to dispute this charge with my bank if I don't get a refund today. This is ridiculous.",
+    "category": "refund",
+    "priority": "high",
+    "needs_human": true,
+    "article_id": "refund-policy",
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Chargeback threat. Needs a human even though a policy article exists."
+  },
+  {
+    "id": 29,
+    "text": "The Slack notifications stopped working after I reconnected the integration.",
+    "category": "bug",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "slack-integration",
+    "should_escalate": false
+  },
+  {
+    "id": 30,
+    "text": "How do I delete my account?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "delete-account-privacy",
+    "should_escalate": false
+  },
+  {
+    "id": 31,
+    "text": "How do I turn off the email notifications? I get too many.",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "notification-settings",
+    "should_escalate": false
+  },
+  {
+    "id": 32,
+    "text": "You charged me twice and I want my money back NOW.",
+    "category": "billing",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "billing-duplicate-charge",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "Duplicate charge plus a refund demand. Labeled billing because the fix is correcting an error."
+  },
+  {
+    "id": 33,
+    "text": "You people are useless. Fix my account or I'll make sure everyone knows how terrible your company is.",
+    "category": "other",
+    "priority": "high",
+    "needs_human": true,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Abusive and vague. Needs a human."
+  },
+  {
+    "id": 34,
+    "text": "I got a new phone and lost my authenticator app. I don't have backup codes.",
+    "category": "account_access",
+    "priority": "high",
+    "needs_human": true,
+    "article_id": "two-factor-lost-device",
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Account recovery needs identity verification by a person."
+  },
+  {
+    "id": 35,
+    "text": "I'm not getting email notifications for comments anymore.",
+    "category": "bug",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "notification-settings",
+    "should_escalate": false
+  },
+  {
+    "id": 36,
+    "text": "I'm a journalist writing about productivity tools. Who can I talk to?",
+    "category": "other",
+    "priority": "low",
+    "needs_human": true,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Press inquiry. Needs a human."
+  },
+  {
+    "id": 37,
+    "text": "Please add a dark mode, my eyes hurt at night.",
+    "category": "feature_request",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 38,
+    "text": "I cancelled last week but you still charged me. Please refund.",
+    "category": "refund",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "refund-policy",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "Charged after cancelling."
+  },
+  {
+    "id": 39,
+    "text": "Our company was invoiced under the wrong company name. Can you reissue it?",
+    "category": "billing",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "billing-invoices-vat",
+    "should_escalate": false
+  },
+  {
+    "id": 40,
+    "text": "The reset link says 'expired' every time I click it.",
+    "category": "account_access",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "reset-password",
+    "should_escalate": false
+  },
+  {
+    "id": 41,
+    "text": "Can you add our VAT ID to our invoices? We're based in Germany.",
+    "category": "billing",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "billing-invoices-vat",
+    "should_escalate": false
+  },
+  {
+    "id": 42,
+    "text": "asdkj hello???",
+    "category": "other",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Gibberish. The system should ask a clarifying question."
+  },
+  {
+    "id": 43,
+    "text": "Do you have a startup discount? We're a 3-person company.",
+    "category": "other",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Sales question, labeled other even though it mentions money."
+  },
+  {
+    "id": 44,
+    "text": "The board stopped syncing between my laptop and phone since yesterday. Changes on one don't show up on the other.",
+    "category": "bug",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "sync-troubleshooting",
+    "should_escalate": false
+  },
+  {
+    "id": 45,
+    "text": "What's the maximum file size for attachments?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "No article covers this, so the system must escalate."
+  },
+  {
+    "id": 46,
+    "text": "My invite link to the team workspace says it has expired.",
+    "category": "account_access",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "invite-teammates",
+    "should_escalate": false
+  },
+  {
+    "id": 47,
+    "text": "I changed my email and now I can't log in with the new one.",
+    "category": "account_access",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "change-email",
+    "should_escalate": false
+  },
+  {
+    "id": 48,
+    "text": "How do I invite my teammates to my board?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "invite-teammates",
+    "should_escalate": false
+  },
+  {
+    "id": 49,
+    "text": "I forgot my password and the reset email never arrives.",
+    "category": "account_access",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "reset-password",
+    "should_escalate": false
+  },
+  {
+    "id": 50,
+    "text": "How do I connect Brightboard to Slack?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "slack-integration",
+    "should_escalate": false
+  },
+  {
+    "id": 51,
+    "text": "Hola, me cobraron dos veces este mes. ¿Pueden ayudarme?",
+    "category": "billing",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "billing-duplicate-charge",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "Spanish ticket."
+  },
+  {
+    "id": 52,
+    "text": "Allow us to customize the column colors, please!",
+    "category": "feature_request",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 53,
+    "text": "Search doesn't find cards I created yesterday.",
+    "category": "bug",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 54,
+    "text": "Someone logged into my account from another country. I didn't do this!",
+    "category": "account_access",
+    "priority": "high",
+    "needs_human": true,
+    "article_id": "reset-password",
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Security incident. Must go to a human even though an article exists."
+  },
+  {
+    "id": 55,
+    "text": "My card expired and I got an email saying payment failed. What do I do?",
+    "category": "billing",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "billing-failed-payment",
+    "should_escalate": false
+  },
+  {
+    "id": 56,
+    "text": "It would be great to have recurring tasks.",
+    "category": "feature_request",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 57,
+    "text": "Your latest update broke the calendar view. It shows a blank page.",
+    "category": "bug",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 58,
+    "text": "Any plans for a Gantt chart view?",
+    "category": "feature_request",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 59,
+    "text": "I'd like a refund for my annual plan. I bought it 10 days ago and haven't used it.",
+    "category": "refund",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "refund-policy",
+    "should_escalate": false
+  },
+  {
+    "id": 60,
+    "text": "Can you integrate with Microsoft Teams? We don't use Slack.",
+    "category": "feature_request",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Asks about an integration that does not exist."
+  },
+  {
+    "id": 61,
+    "text": "The app crashes every time I open it on my iPhone 12. I already restarted the phone.",
+    "category": "bug",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "mobile-app-crash",
+    "should_escalate": false
+  },
+  {
+    "id": 62,
+    "text": "Is there an activity log that shows who changed a card?",
+    "category": "feature_request",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "Might already exist, but no article covers it. Labeled feature_request."
+  },
+  {
+    "id": 63,
+    "text": "There's a pending charge of $24 on my bank statement but I only have one seat. Is that a double charge?",
+    "category": "billing",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "billing-duplicate-charge",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "Could be a pending hold rather than a real duplicate. Labeled billing either way."
+  },
+  {
+    "id": 64,
+    "text": "I want to switch to a different credit card for my subscription.",
+    "category": "billing",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "billing-update-payment-method",
+    "should_escalate": false
+  },
+  {
+    "id": 65,
+    "text": "When I drag a card to another column it jumps back. I'm using Chrome.",
+    "category": "bug",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true,
+    "tricky": true,
+    "note": "No help article covers this. The system must escalate and must not invent a fix."
+  },
+  {
+    "id": 66,
+    "text": "I wish I could assign a card to more than one person.",
+    "category": "feature_request",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 67,
+    "text": "We need to move from Pro to Team. How does billing work if we upgrade mid-month?",
+    "category": "billing",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "change-plan",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "Plan changes are labeled billing, not how_to."
+  },
+  {
+    "id": 68,
+    "text": "How do I set a reminder for a due date?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "notification-settings",
+    "should_escalate": false
+  },
+  {
+    "id": 69,
+    "text": "How do I cancel my subscription?",
+    "category": "billing",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "cancel-subscription",
+    "should_escalate": false,
+    "tricky": true,
+    "note": "Cancelling is labeled billing, not how_to."
+  },
+  {
+    "id": 70,
+    "text": "I'd like to talk to someone about an enterprise contract for 500 people.",
+    "category": "other",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": null,
+    "should_escalate": true
+  },
+  {
+    "id": 71,
+    "text": "Failed payment AGAIN. This is the third time your system says my card was declined but my bank says nothing is wrong.",
+    "category": "billing",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "billing-failed-payment",
+    "should_escalate": false
+  },
+  {
+    "id": 72,
+    "text": "Why did my bill go up this month? I was paying $12 and now it's $36.",
+    "category": "billing",
+    "priority": "medium",
+    "needs_human": false,
+    "article_id": "change-plan",
+    "should_escalate": false
+  },
+  {
+    "id": 73,
+    "text": "I can't log in. It says my password is wrong but I just reset it.",
+    "category": "account_access",
+    "priority": "high",
+    "needs_human": false,
+    "article_id": "reset-password",
+    "should_escalate": false
+  },
+  {
+    "id": 74,
+    "text": "Can I get a partial refund for the unused part of this month? I'm leaving the team plan.",
+    "category": "refund",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "refund-policy",
+    "should_escalate": false
+  },
+  {
+    "id": 75,
+    "text": "How can I export all my boards before I cancel?",
+    "category": "how_to",
+    "priority": "low",
+    "needs_human": false,
+    "article_id": "export-data",
+    "should_escalate": false
+  }
+]
