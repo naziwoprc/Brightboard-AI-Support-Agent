@@ -1,0 +1,454 @@
+{
+  "name": "Brightboard AI Support Agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-1216, 0],
+      "id": "927ba161-290b-410a-ab37-eccd59e64170",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "47eb0c2f-901b-4ec4-b129-351d77bab4e2",
+              "name": "ticket_id",
+              "value": 8,
+              "type": "number"
+            },
+            {
+              "id": "bd7290f2-89a4-46a2-b837-6855e9fa873c",
+              "name": "message",
+              "value": "Refund me. I bought the annual plan 4 months ago and the app is too slow.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [-992, 0],
+      "id": "f1b1756a-f183-41ca-a977-b026ccc8ea34",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI customer support ticket classifier\nfor Brightboard.\n\nAnalyze the following customer support ticket:\n\nTicket ID: {{ $json.ticket_id }}\nCustomer message: {{ $json.message }}\n\nClassify it into exactly one category:\n- billing\n- refund\n- bug\n- account_access\n- how_to\n- feature_request\n- other\n\nAssign exactly one priority:\n- low\n- medium\n- high\n\nDetermine whether the ticket requires human intervention.\n\nRules:\n- Security incidents must be escalated.\n- Privacy and legal requests must be escalated.\n- Chargeback threats must be escalated.\n- Potential data loss must be escalated.\n- If the issue cannot be confidently understood,\n  escalate it.\n- Do not invent information.\n\nReturn structured output only.\n\nDefinitions:\n- needs_human: true when a human must personally handle\n  the issue, such as security, privacy, legal, or\n  identity-verification cases.\n- should_escalate: true when the issue must be routed\n  to a specialist or cannot be resolved using the\n  available help-center information.\n- Every drafted reply will require human approval,\n  regardless of these two fields.\n\nReturn all six fields in the required JSON format.\n\nPriority guidelines:\n- low: General questions, minor requests, or non-urgent issues.\n- medium: Standard billing, refund, account, or technical problems.\n- high: Security incidents, potential data loss, urgent account\n  compromise, or issues with serious immediate impact.\n\nImportant:\n- A customer demanding a refund does not automatically\n  make a ticket high priority.\n- Customer dissatisfaction alone does not determine priority.\n- Evaluate urgency and potential impact, not emotional wording.",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [-768, 0],
+      "id": "bcee176b-b9ed-422f-bfc1-dd08a6a4fc5a",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [-760, 232],
+      "id": "570df009-c643-4ddd-a0e5-cdf418191320",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"ticket_id\": 8,\n  \"category\": \"refund\",\n  \"priority\": \"medium\",\n  \"needs_human\": false,\n  \"should_escalate\": false,\n  \"reasoning\": \"The customer requests a refund outside the annual plan's 30-day eligibility window.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [-632, 232],
+      "id": "70ae237a-2554-4781-a425-bb636ce2676c",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $json.output;\nconst ticket = $('Edit Fields').first().json;\n\nreturn {\n  json: {\n    ...result,\n    ticket_id: ticket.ticket_id,\n    message: ticket.message,\n    original_ticket_id: ticket.ticket_id,\n    classification_status: \"completed\"\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-416, 0],
+      "id": "e00fe9b2-e745-491f-b31e-9bbe36f620d7",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "chromaCollection": {
+          "__rl": true,
+          "value": "brightboard_knowledge_base",
+          "mode": "list",
+          "cachedResultName": "brightboard_knowledge_base"
+        },
+        "prompt": "={{ $json.message }}",
+        "topK": 3,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreChromaDB",
+      "typeVersion": 1.3,
+      "position": [-192, 0],
+      "id": "5637522b-c3eb-4284-919d-868f709b350f",
+      "name": "Chroma Vector Store1",
+      "credentials": {
+        "chromaSelfHostedApi": {
+          "id": "",
+          "name": "ChromaDB Self-Hosted account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [-120, 232],
+      "id": "3a00f613-c7b9-408a-8b7d-9114c82d092e",
+      "name": "Embeddings Ollama1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const documents = $input.all();\n\nconst ticket = $('Code in JavaScript').first().json;\n\nconst knowledge = documents.map((item, index) => {\n  const doc = item.json.document;\n\n  return `Document ${index + 1}\n${doc.pageContent}`;\n}).join('\\n\\n---\\n\\n');\n\nreturn [{\n  json: {\n    ticket_id: ticket.ticket_id,\n    category: ticket.category,\n    priority: ticket.priority,\n    needs_human: ticket.needs_human,\n    should_escalate: ticket.should_escalate,\n    message: ticket.message,\n    knowledge: knowledge\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [160, 0],
+      "id": "19b1a9d1-1092-432e-ba58-55fc27ee3cb5",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the customer support assistant for Brightboard.\n\nYour task is to draft a helpful, professional response to the customer.\n\nCUSTOMER TICKET:\nTicket ID: {{ $json.ticket_id }}\nCategory: {{ $json.category }}\nPriority: {{ $json.priority }}\nMessage: {{ $json.message }}\n\nKNOWLEDGE BASE:\n{{ $json.knowledge }}\n\nRULES:\n1. Use only the supplied knowledge base for company policies and technical instructions.\n2. Never invent policies, refund exceptions, or actions already taken.\n3. If the knowledge base does not cover an issue, clearly say that it needs further investigation.\n4. Address every concern raised by the customer.\n5. Be polite, concise, and empathetic.\n6. Do not claim that a refund has been approved or processed.\n7. The customer purchased an annual plan 4 months ago. The policy allows annual refunds within 30 days of purchase or renewal. Explain that the request appears outside the standard refund window, but do not make a final decision or reject an exception request. Leave the final decision to a human reviewer.\n\n8. The app slowness complaint is not covered by the retrieved troubleshooting articles. Acknowledge it and request relevant device and operating system details. Do not claim that the issue has already been escalated.\n9. This is a DRAFT for human review. Do not send it.\n10. Never claim that you have flagged, escalated, forwarded, submitted, or assigned a ticket unless the workflow has actually performed that action. You may say that the request is being prepared for human review.\n\nReturn only the customer-facing reply.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [384, 0],
+      "id": "50851810-295a-49f7-9da9-e5c103a1f1ec",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [456, 232],
+      "id": "eaa81a63-8b64-4148-8506-601314971c1a",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "message": "={{ $json.draft_reply\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;')\n  .replace(/\\*/g, '')\n}}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [960, 0],
+      "id": "d1b8632f-d75d-4a2d-81e8-67fe8d77cd01",
+      "name": "Send message and wait for response",
+      "webhookId": "3837d26e-2d21-42dd-abe2-14ce26148ebe",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Nazi agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.approved }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "70006e0f-db96-4e8e-b13d-e258e03d2ad6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Approved"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b3bb0066-21a8-41d8-998c-6779ad9fe268",
+                    "leftValue": "={{ $json.data.approved }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Rejected"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [1184, 0],
+      "id": "49293861-8e63-4e04-ac67-edbaeb7069d5",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00075445-dafe-45b5-bb94-cd1429fd4297",
+              "name": "ticket_id",
+              "value": "={{ $('Code in JavaScript2').first().json.ticket_id }}",
+              "type": "number"
+            },
+            {
+              "id": "4a181433-daf4-45a7-b9b6-93aba318d2ae",
+              "name": "category",
+              "value": "={{ $('Code in JavaScript2').first().json.category }}",
+              "type": "string"
+            },
+            {
+              "id": "69106186-01dd-49da-af5f-299d57aa4fbc",
+              "name": "customer_message",
+              "value": "={{ $('Code in JavaScript2').first().json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "99832ae8-7ecc-49a2-a06e-38b41342d990",
+              "name": "draft_reply",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [736, 0],
+      "id": "92d8ce0e-1af6-4216-9223-e4b2ce836784",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Chroma Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Chroma Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chroma Vector Store1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "75088321-065b-4355-8066-34fa42f6f2c2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "nodeGroups": [],
+  "id": "cE0vH0RjcglaZ0ox",
+  "tags": []
+}
