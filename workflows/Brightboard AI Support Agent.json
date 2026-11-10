@@ -1,11 +1,10 @@
 {
-  "name": "Brightboard AI Support Agent",
   "nodes": [
     {
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [-1216, 0],
+      "position": [-1536, 48],
       "id": "927ba161-290b-410a-ab37-eccd59e64170",
       "name": "When clicking ‘Execute workflow’"
     },
@@ -16,13 +15,13 @@
             {
               "id": "47eb0c2f-901b-4ec4-b129-351d77bab4e2",
               "name": "ticket_id",
-              "value": 8,
+              "value": 10,
               "type": "number"
             },
             {
               "id": "bd7290f2-89a4-46a2-b837-6855e9fa873c",
               "name": "message",
-              "value": "Refund me. I bought the annual plan 4 months ago and the app is too slow.",
+              "value": "Do you have a dark mode on mobile?",
               "type": "string"
             }
           ]
@@ -31,7 +30,7 @@
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
-      "position": [-992, 0],
+      "position": [-1312, 48],
       "id": "f1b1756a-f183-41ca-a977-b026ccc8ea34",
       "name": "Edit Fields"
     },
@@ -44,23 +43,27 @@
       },
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
-      "position": [-768, 0],
+      "position": [-1088, 48],
       "id": "bcee176b-b9ed-422f-bfc1-dd08a6a4fc5a",
-      "name": "Basic LLM Chain"
+      "name": "Basic LLM Chain",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
         "model": "openai/gpt-oss-120b",
-        "options": {}
+        "options": {
+          "temperature": 0
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
-      "position": [-760, 232],
+      "position": [-1088, 272],
       "id": "570df009-c643-4ddd-a0e5-cdf418191320",
       "name": "Groq Chat Model",
       "credentials": {
         "groqApi": {
-          "id": "",
+          "id": "4p7GXQCCd99madnQ",
           "name": "Groq account"
         }
       }
@@ -71,7 +74,7 @@
       },
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
-      "position": [-632, 232],
+      "position": [-960, 272],
       "id": "70ae237a-2554-4781-a425-bb636ce2676c",
       "name": "Structured Output Parser"
     },
@@ -81,7 +84,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-416, 0],
+      "position": [-736, 48],
       "id": "e00fe9b2-e745-491f-b31e-9bbe36f620d7",
       "name": "Code in JavaScript"
     },
@@ -100,12 +103,12 @@
       },
       "type": "@n8n/n8n-nodes-langchain.vectorStoreChromaDB",
       "typeVersion": 1.3,
-      "position": [-192, 0],
+      "position": [-512, -64],
       "id": "5637522b-c3eb-4284-919d-868f709b350f",
       "name": "Chroma Vector Store1",
       "credentials": {
         "chromaSelfHostedApi": {
-          "id": "",
+          "id": "0XaFNBRYsDjOkcOs",
           "name": "ChromaDB Self-Hosted account"
         }
       }
@@ -116,142 +119,58 @@
       },
       "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
       "typeVersion": 1,
-      "position": [-120, 232],
+      "position": [-448, 176],
       "id": "3a00f613-c7b9-408a-8b7d-9114c82d092e",
       "name": "Embeddings Ollama1",
       "credentials": {
         "ollamaApi": {
-          "id": "",
+          "id": "08kmO4jHNDnisYJv",
           "name": "Ollama account"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "const documents = $input.all();\n\nconst ticket = $('Code in JavaScript').first().json;\n\nconst knowledge = documents.map((item, index) => {\n  const doc = item.json.document;\n\n  return `Document ${index + 1}\n${doc.pageContent}`;\n}).join('\\n\\n---\\n\\n');\n\nreturn [{\n  json: {\n    ticket_id: ticket.ticket_id,\n    category: ticket.category,\n    priority: ticket.priority,\n    needs_human: ticket.needs_human,\n    should_escalate: ticket.should_escalate,\n    message: ticket.message,\n    knowledge: knowledge\n  }\n}];"
+        "jsCode": "const documents = $input.all();\nconst ticket = $('Code in JavaScript').first().json;\n\n// Chroma returns a DISTANCE: lower = better match\nconst THRESHOLD = 0.75;\n\nconst scores = documents\n  .map(i => i.json.score)\n  .filter(s => typeof s === 'number');\n\nconst best_score = scores.length ? Math.min(...scores) : null;\nconst kb_match_weak = best_score === null || best_score > THRESHOLD;\n\nconst knowledge = kb_match_weak\n  ? 'NO RELEVANT KNOWLEDGE BASE ARTICLES WERE FOUND FOR THIS TICKET.'\n  : documents.map((item, index) => {\n      const doc = item.json.document;\n      return `Document ${index + 1}\\n${doc?.pageContent ?? ''}`;\n    }).join('\\n\\n---\\n\\n');\n\nreturn [{\n  json: {\n    ticket_id: ticket.ticket_id,\n    category: ticket.category,\n    priority: ticket.priority,\n    needs_human: ticket.needs_human,\n    should_escalate: ticket.should_escalate,\n    reasoning: ticket.reasoning,\n    message: ticket.message,\n    knowledge,\n    best_score,\n    kb_match_weak\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [160, 0],
+      "position": [-160, 48],
       "id": "19b1a9d1-1092-432e-ba58-55fc27ee3cb5",
       "name": "Code in JavaScript2"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=You are the customer support assistant for Brightboard.\n\nYour task is to draft a helpful, professional response to the customer.\n\nCUSTOMER TICKET:\nTicket ID: {{ $json.ticket_id }}\nCategory: {{ $json.category }}\nPriority: {{ $json.priority }}\nMessage: {{ $json.message }}\n\nKNOWLEDGE BASE:\n{{ $json.knowledge }}\n\nRULES:\n1. Use only the supplied knowledge base for company policies and technical instructions.\n2. Never invent policies, refund exceptions, or actions already taken.\n3. If the knowledge base does not cover an issue, clearly say that it needs further investigation.\n4. Address every concern raised by the customer.\n5. Be polite, concise, and empathetic.\n6. Do not claim that a refund has been approved or processed.\n7. The customer purchased an annual plan 4 months ago. The policy allows annual refunds within 30 days of purchase or renewal. Explain that the request appears outside the standard refund window, but do not make a final decision or reject an exception request. Leave the final decision to a human reviewer.\n\n8. The app slowness complaint is not covered by the retrieved troubleshooting articles. Acknowledge it and request relevant device and operating system details. Do not claim that the issue has already been escalated.\n9. This is a DRAFT for human review. Do not send it.\n10. Never claim that you have flagged, escalated, forwarded, submitted, or assigned a ticket unless the workflow has actually performed that action. You may say that the request is being prepared for human review.\n\nReturn only the customer-facing reply.",
+        "text": "=You are the customer support assistant for Brightboard.\n\nDraft a helpful, professional reply to the customer.\n\nCUSTOMER TICKET:\nTicket ID: {{ $json.ticket_id }}\nCategory: {{ $json.category }}\nPriority: {{ $json.priority }}\nMessage: {{ $json.message }}\n\nKNOWLEDGE BASE:\n{{ $json.knowledge }}\n\nRULES:\n1. Use only the knowledge base for company policies and technical instructions. Never invent policies, features, prices, deadlines, or exceptions.\n2. If the knowledge base does not cover part of the issue, say it needs further investigation. Where useful, ask for specific details, such as device, operating system, app version, screenshots, or steps to reproduce.\n3. Address every concern the customer raised.\n4. Be polite, concise, and empathetic. Write plain text with no markdown formatting.\n5. For refund, billing, charge, or cancellation requests, explain the relevant policy from the knowledge base. Never say a refund or credit has been approved, processed, or denied, and never reject a request for an exception. If the request appears to fall outside the standard policy, say so, and explain that the final decision rests with the support team. Only mention dates or time periods the customer actually stated.\n6. Never claim that an action has been taken (refunded, escalated, forwarded, flagged, assigned, or changed on the account). Do not promise follow-up times unless the knowledge base states them.\n7. Never mention internal details such as the category, priority, or how the ticket was classified.\n8. Never ask the customer for a password or full payment card details.\n9. Return only the customer-facing reply: no subject line, no notes, no explanations.\n10. Absence of information is not evidence. If the knowledge base does not mention a feature, setting, or policy, never say it does not exist, is not supported, or is not available. Instead say you could not confirm it from the available information and that the support team will check.\n11. Never write \"I'll pass this along\", \"I'll forward\", \"I'll let the team know\", or similar. Use wording like \"our team will review this\" only if it makes no promise of a specific action.",
         "batching": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
-      "position": [384, 0],
+      "position": [64, 48],
       "id": "50851810-295a-49f7-9da9-e5c103a1f1ec",
-      "name": "Basic LLM Chain1"
+      "name": "Basic LLM Chain1",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
         "model": "openai/gpt-oss-120b",
-        "options": {}
+        "options": {
+          "temperature": 0
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
-      "position": [456, 232],
+      "position": [144, 272],
       "id": "eaa81a63-8b64-4148-8506-601314971c1a",
       "name": "Groq Chat Model1",
       "credentials": {
         "groqApi": {
-          "id": "",
+          "id": "4p7GXQCCd99madnQ",
           "name": "Groq account"
         }
       }
-    },
-    {
-      "parameters": {
-        "operation": "sendAndWait",
-        "message": "={{ $json.draft_reply\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;')\n  .replace(/\\*/g, '')\n}}",
-        "approvalOptions": {
-          "values": {
-            "approvalType": "double"
-          }
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [960, 0],
-      "id": "d1b8632f-d75d-4a2d-81e8-67fe8d77cd01",
-      "name": "Send message and wait for response",
-      "webhookId": "3837d26e-2d21-42dd-abe2-14ce26148ebe",
-      "credentials": {
-        "telegramApi": {
-          "id": "",
-          "name": "Nazi agent"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "rules": {
-          "values": [
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.data.approved }}",
-                    "rightValue": "true",
-                    "operator": {
-                      "type": "boolean",
-                      "operation": "true",
-                      "singleValue": true
-                    },
-                    "id": "70006e0f-db96-4e8e-b13d-e258e03d2ad6"
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Approved"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "b3bb0066-21a8-41d8-998c-6779ad9fe268",
-                    "leftValue": "={{ $json.data.approved }}",
-                    "rightValue": "",
-                    "operator": {
-                      "type": "boolean",
-                      "operation": "false",
-                      "singleValue": true
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Rejected"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.4,
-      "position": [1184, 0],
-      "id": "49293861-8e63-4e04-ac67-edbaeb7069d5",
-      "name": "Switch"
     },
     {
       "parameters": {
@@ -280,6 +199,42 @@
               "name": "draft_reply",
               "value": "={{ $json.text }}",
               "type": "string"
+            },
+            {
+              "id": "6b54087d-e09c-44de-8438-4229c1df1c53",
+              "name": "needs_human",
+              "value": "={{ $('Code in JavaScript2').first().json.needs_human }}",
+              "type": "boolean"
+            },
+            {
+              "id": "3ca60854-034d-4973-b97f-aadfb20e4662",
+              "name": "should_escalate",
+              "value": "={{ $('Code in JavaScript2').first().json.should_escalate }}",
+              "type": "boolean"
+            },
+            {
+              "id": "61cfb515-85ec-4fed-843a-215a8ead4309",
+              "name": "priority",
+              "value": "={{ $('Code in JavaScript2').first().json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "c96d4d1d-7454-4b5f-92d2-42b5f0cffb30",
+              "name": "reasoning",
+              "value": "={{ $('Code in JavaScript').first().json.reasoning }}",
+              "type": "string"
+            },
+            {
+              "id": "b0e06f61-82ae-436a-8f5b-1275683ec98f",
+              "name": "best_score",
+              "value": "={{ $('Code in JavaScript2').first().json.best_score }}",
+              "type": "number"
+            },
+            {
+              "id": "d411d0a8-15e5-4eb3-8829-00dba2742616",
+              "name": "kb_match_weak",
+              "value": "={{ $('Code in JavaScript2').first().json.kb_match_weak }}",
+              "type": "boolean"
             }
           ]
         },
@@ -287,12 +242,570 @@
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
-      "position": [736, 0],
+      "position": [416, 48],
       "id": "92d8ce0e-1af6-4216-9223-e4b2ce836784",
       "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "chatId": "",
+        "text": "={{ (() => {\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nreturn `📋 Ticket ${$json.ticket_id} | ${esc($json.category)} | priority: ${esc($json.priority)}\n👤 Needs human: ${$json.needs_human ? 'YES' : 'no'} | Escalate: ${$json.should_escalate ? 'YES' : 'no'}\n\n${$json.kb_match_weak ? '⚠️ No KB match (best distance ' + Number($json.best_score).toFixed(2) + ')' : '📚 KB match ok (' + Number($json.best_score).toFixed(2) + ')'}\n\n💬 Customer:\n${esc($json.customer_message)}\n\n🧠 AI note: ${esc($json.reasoning)}\n\n──── DRAFT ────\n${esc(String($json.draft_reply).replace(/\\*/g, ''))}`;\n})() }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Approve",
+                    "additionalFields": {
+                      "callback_data": "=approve:{{ $json.ticket_id }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Reject",
+                    "additionalFields": {
+                      "callback_data": "=reject:{{ $json.ticket_id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [864, 144],
+      "id": "a82dc98b-c199-4a02-a915-6c3f0b20d1b7",
+      "name": "Send draft with buttons",
+      "webhookId": "d32cb452-136f-4bc0-9d87-3faf62a31518",
+      "credentials": {
+        "telegramApi": {
+          "id": "LMsqUyBEyhjX6Ju7",
+          "name": "Nazi agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": ["callback_query"],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [-1568, 640],
+      "id": "4aafd6d2-b888-4120-9be5-7a570ef5b9b4",
+      "name": "Telegram Trigger",
+      "webhookId": "5dc96d86-9272-4990-8965-ff5503f09c7a",
+      "credentials": {
+        "telegramApi": {
+          "id": "LMsqUyBEyhjX6Ju7",
+          "name": "Nazi agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.callback_query.id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [-1120, 640],
+      "id": "a48dc6cd-44b8-431c-94ad-484ed3b46b30",
+      "name": "Answer Query",
+      "webhookId": "848e0a82-c5ea-4436-b357-8bc635c8eb50",
+      "credentials": {
+        "telegramApi": {
+          "id": "LMsqUyBEyhjX6Ju7",
+          "name": "Nazi agent"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const q = $('Telegram Trigger').first().json.callback_query;\nconst [action, ticket_id] = q.data.split(':');\n\nconst full = q.message.text || '';\nconst SEP = '──── DRAFT ────';\nconst idx = full.indexOf(SEP);\nconst separator_found = idx >= 0;\n\n// Only the text after the separator is the customer-facing reply\nconst draft = separator_found ? full.slice(idx + SEP.length).trim() : '';\n\n// The edited Telegram message keeps the full context (header + draft)\nconst full_html = full\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;');\n\nreturn [{\n  json: {\n    action,\n    ticket_id: Number(ticket_id),\n    draft_reply: draft,\n    draft_html: full_html,\n    separator_found,\n    chat_id: q.message.chat.id,\n    message_id: q.message.message_id\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-896, 640],
+      "id": "f62e98e5-3fbd-4198-8aef-d2f004993ff3",
+      "name": "Parse tap"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c1000000-0000-4000-8000-000000000001",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Approved"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c1000000-0000-4000-8000-000000000002",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Rejected"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [-672, 640],
+      "id": "e7a1fed0-5f2a-4a98-b01c-49f57f300e35",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}",
+        "text": "=✅ APPROVED\n\n{{ $json.draft_html }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [-448, 544],
+      "id": "4807f816-b470-4619-b03f-ffe6edca1dae",
+      "name": "Mark as approved",
+      "webhookId": "dbab0ace-effc-42d5-a830-89d704fb4d27",
+      "credentials": {
+        "telegramApi": {
+          "id": "LMsqUyBEyhjX6Ju7",
+          "name": "Nazi agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}",
+        "text": "=❌ REJECTED\n\n{{ $json.draft_html }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [-432, 736],
+      "id": "b6bfac7c-6cd9-4d65-b6b3-d5017e1d9349",
+      "name": "Mark as rejected",
+      "webhookId": "6e356450-de71-4a5a-baf9-24c83598ae4a",
+      "credentials": {
+        "telegramApi": {
+          "id": "LMsqUyBEyhjX6Ju7",
+          "name": "Nazi agent"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [-208, 544],
+      "id": "3bf941bc-1dad-42f1-80c2-f73034f273e5",
+      "name": "Next steps after approval"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [-208, 736],
+      "id": "127276bf-aa88-41d7-9d32-4c60b54afe00",
+      "name": "Next steps after rejection"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d1000000-0000-4000-8000-000000000001",
+              "leftValue": "={{ $json.needs_human === false && $json.should_escalate === false && $json.kb_match_weak === false && !['billing','refund'].includes($json.category) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [640, 48],
+      "id": "1e6d77b1-35d5-4690-b6b1-09a00fa9d1d9",
+      "name": "Can auto-send?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [864, -48],
+      "id": "38b3e626-a049-4770-9101-3e8fdddfa82a",
+      "name": "Auto-send reply to customer"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e1000000-0000-4000-8000-000000000001",
+              "leftValue": "={{ $json.callback_query.from.id }}",
+              "rightValue": 2030490073,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-1344, 640],
+      "id": "67e89938-9efe-4864-966e-02ddcae4dbe9",
+      "name": "Is it me?"
+    },
+    {
+      "parameters": {
+        "chatId": "",
+        "text": "=🤖 Auto-handled ticket {{ $json.ticket_id }} ({{ $json.category }})\n\nCustomer: {{ $json.customer_message.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}\n\nReply that would be sent:\n{{ $json.draft_reply.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1088, -48],
+      "id": "5b3b6770-3960-40af-9443-3a239ef30720",
+      "name": "Auto-handled FYI",
+      "webhookId": "97af5e16-09e2-432e-a003-18fd98340c74",
+      "credentials": {
+        "telegramApi": {
+          "id": "LMsqUyBEyhjX6Ju7",
+          "name": "Nazi agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ui50OeH1ZIabyIUb",
+          "mode": "list",
+          "cachedResultName": "ticket log",
+          "cachedResultUrl": "/projects/q07oeXABmhl73jxK/datatables/ui50OeH1ZIabyIUb"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_id",
+              "keyValue": "={{ $json.ticket_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $json.ticket_id }}",
+            "created_at": "={{ $now.toISO() }}",
+            "category": "={{ $json.category }}",
+            "priority": "={{ $json.priority }}",
+            "needs_human": "={{ String($json.needs_human) }}",
+            "should_escalate": "={{ String($json.should_escalate) }}",
+            "kb_match_weak": "={{ String($json.kb_match_weak) }}",
+            "best_score": "={{ String($json.best_score) }}",
+            "route": "={{ ($json.needs_human === false && $json.should_escalate === false && $json.kb_match_weak === false && !['billing','refund'].includes($json.category)) ? 'auto' : 'approval' }}",
+            "customer_message": "={{ $json.customer_message }}",
+            "draft_reply": "={{ $json.draft_reply }}",
+            "decision": "={{ ($json.needs_human === false && $json.should_escalate === false && $json.kb_match_weak === false && !['billing','refund'].includes($json.category)) ? 'auto_sent' : 'pending' }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [560, 272],
+      "id": "d40914a5-804e-4f5e-a141-0c7f5d85df7f",
+      "name": "ticket log",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ui50OeH1ZIabyIUb",
+          "mode": "list",
+          "cachedResultName": "ticket log",
+          "cachedResultUrl": "/projects/q07oeXABmhl73jxK/datatables/ui50OeH1ZIabyIUb"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_id",
+              "keyValue": "={{ $('Parse tap').first().json.ticket_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "decision": "approved",
+            "decided_at": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "needs_human",
+              "displayName": "needs_human",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "should_escalate",
+              "displayName": "should_escalate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "kb_match_weak",
+              "displayName": "kb_match_weak",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "best_score",
+              "displayName": "best_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "route",
+              "displayName": "route",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "customer_message",
+              "displayName": "customer_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "draft_reply",
+              "displayName": "draft_reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "decision",
+              "displayName": "decision",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "decided_at",
+              "displayName": "decided_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [48, 544],
+      "id": "b1dd5bf3-8d08-470c-8084-7a66c9c83929",
+      "name": "Log approved",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ui50OeH1ZIabyIUb",
+          "mode": "list",
+          "cachedResultName": "ticket log",
+          "cachedResultUrl": "/projects/q07oeXABmhl73jxK/datatables/ui50OeH1ZIabyIUb"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_id",
+              "keyValue": "={{ $('Parse tap').first().json.ticket_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "decision": "rejected",
+            "decided_at": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [80, 736],
+      "id": "a4f0f96d-d7af-4d04-b5f0-ffed7b273ad4",
+      "name": "Log rejected",
+      "onError": "continueRegularOutput"
     }
   ],
-  "pinData": {},
   "connections": {
     "When clicking ‘Execute workflow’": {
       "main": [
@@ -316,17 +829,6 @@
         ]
       ]
     },
-    "Groq Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Basic LLM Chain",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Basic LLM Chain": {
       "main": [
         [
@@ -338,23 +840,23 @@
         ]
       ]
     },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Structured Output Parser": {
       "ai_outputParser": [
         [
           {
             "node": "Basic LLM Chain",
             "type": "ai_outputParser",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Embeddings Ollama1": {
-      "ai_embedding": [
-        [
-          {
-            "node": "Chroma Vector Store1",
-            "type": "ai_embedding",
             "index": 0
           }
         ]
@@ -382,11 +884,33 @@
         ]
       ]
     },
+    "Embeddings Ollama1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Chroma Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Code in JavaScript2": {
       "main": [
         [
           {
             "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
             "type": "main",
             "index": 0
           }
@@ -404,18 +928,45 @@
         ]
       ]
     },
-    "Basic LLM Chain1": {
+    "Edit Fields1": {
       "main": [
         [
           {
-            "node": "Edit Fields1",
+            "node": "Can auto-send?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ticket log",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send message and wait for response": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Is it me?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Query": {
+      "main": [
+        [
+          {
+            "node": "Parse tap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse tap": {
       "main": [
         [
           {
@@ -426,11 +977,102 @@
         ]
       ]
     },
-    "Edit Fields1": {
+    "Switch": {
       "main": [
         [
           {
-            "node": "Send message and wait for response",
+            "node": "Mark as approved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark as rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as approved": {
+      "main": [
+        [
+          {
+            "node": "Next steps after approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as rejected": {
+      "main": [
+        [
+          {
+            "node": "Next steps after rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Next steps after approval": {
+      "main": [
+        [
+          {
+            "node": "Log approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Next steps after rejection": {
+      "main": [
+        [
+          {
+            "node": "Log rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Can auto-send?": {
+      "main": [
+        [
+          {
+            "node": "Auto-send reply to customer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send draft with buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-send reply to customer": {
+      "main": [
+        [
+          {
+            "node": "Auto-handled FYI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is it me?": {
+      "main": [
+        [
+          {
+            "node": "Answer Query",
             "type": "main",
             "index": 0
           }
@@ -438,17 +1080,9 @@
       ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1",
-    "binaryMode": "separate"
-  },
-  "versionId": "75088321-065b-4355-8066-34fa42f6f2c2",
+  "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": ""
-  },
-  "nodeGroups": [],
-  "id": "cE0vH0RjcglaZ0ox",
-  "tags": []
+    "instanceId": "379476ae595cfd5ed98649e90c0d24f1914abbb0338fae0df72c98b18dd7bf4e"
+  }
 }

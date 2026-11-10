@@ -1,0 +1,51 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [-112, 16],
+      "id": "1ee6de15-190c-4650-8159-3ebc42d46c50",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "",
+        "text": "={{ (() => {\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst e = $json.execution || {};\nreturn `🚨 Workflow failed\n\nWorkflow: ${esc($json.workflow?.name)}\nFailed node: ${esc(e.lastNodeExecuted || 'unknown (trigger-level error)')}\nError: ${esc(e.error?.message || 'no message')}\n\nExecution: ${esc(e.id || 'n/a')}\n${esc(e.url || '')}\n\nIf this was a ticket, the customer may not have received a reply.`;\n})() }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [112, 16],
+      "id": "14f19c09-5760-4582-a5ca-dd4b51f28dcc",
+      "name": "Alert me",
+      "webhookId": "7867f411-c402-4c23-aae8-4c0259d460a3",
+      "credentials": {
+        "telegramApi": {
+          "id": "LMsqUyBEyhjX6Ju7",
+          "name": "Nazi agent"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Alert me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "379476ae595cfd5ed98649e90c0d24f1914abbb0338fae0df72c98b18dd7bf4e"
+  }
+}
