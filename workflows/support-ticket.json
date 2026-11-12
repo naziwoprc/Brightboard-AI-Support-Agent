@@ -1,4 +1,5 @@
 {
+  "name": "Support Ticket - Draft and Approval",
   "nodes": [
     {
       "parameters": {},
@@ -60,13 +61,7 @@
       "typeVersion": 1,
       "position": [-1088, 272],
       "id": "570df009-c643-4ddd-a0e5-cdf418191320",
-      "name": "Groq Chat Model",
-      "credentials": {
-        "groqApi": {
-          "id": "4p7GXQCCd99madnQ",
-          "name": "Groq account"
-        }
-      }
+      "name": "Groq Chat Model"
     },
     {
       "parameters": {
@@ -105,13 +100,7 @@
       "typeVersion": 1.3,
       "position": [-512, -64],
       "id": "5637522b-c3eb-4284-919d-868f709b350f",
-      "name": "Chroma Vector Store1",
-      "credentials": {
-        "chromaSelfHostedApi": {
-          "id": "0XaFNBRYsDjOkcOs",
-          "name": "ChromaDB Self-Hosted account"
-        }
-      }
+      "name": "Chroma Vector Store1"
     },
     {
       "parameters": {
@@ -121,13 +110,7 @@
       "typeVersion": 1,
       "position": [-448, 176],
       "id": "3a00f613-c7b9-408a-8b7d-9114c82d092e",
-      "name": "Embeddings Ollama1",
-      "credentials": {
-        "ollamaApi": {
-          "id": "08kmO4jHNDnisYJv",
-          "name": "Ollama account"
-        }
-      }
+      "name": "Embeddings Ollama1"
     },
     {
       "parameters": {
@@ -164,13 +147,7 @@
       "typeVersion": 1,
       "position": [144, 272],
       "id": "eaa81a63-8b64-4148-8506-601314971c1a",
-      "name": "Groq Chat Model1",
-      "credentials": {
-        "groqApi": {
-          "id": "4p7GXQCCd99madnQ",
-          "name": "Groq account"
-        }
-      }
+      "name": "Groq Chat Model1"
     },
     {
       "parameters": {
@@ -248,7 +225,7 @@
     },
     {
       "parameters": {
-        "chatId": "",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
         "text": "={{ (() => {\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nreturn `📋 Ticket ${$json.ticket_id} | ${esc($json.category)} | priority: ${esc($json.priority)}\n👤 Needs human: ${$json.needs_human ? 'YES' : 'no'} | Escalate: ${$json.should_escalate ? 'YES' : 'no'}\n\n${$json.kb_match_weak ? '⚠️ No KB match (best distance ' + Number($json.best_score).toFixed(2) + ')' : '📚 KB match ok (' + Number($json.best_score).toFixed(2) + ')'}\n\n💬 Customer:\n${esc($json.customer_message)}\n\n🧠 AI note: ${esc($json.reasoning)}\n\n──── DRAFT ────\n${esc(String($json.draft_reply).replace(/\\*/g, ''))}`;\n})() }}",
         "replyMarkup": "inlineKeyboard",
         "inlineKeyboard": {
@@ -282,14 +259,7 @@
       "typeVersion": 1.2,
       "position": [864, 144],
       "id": "a82dc98b-c199-4a02-a915-6c3f0b20d1b7",
-      "name": "Send draft with buttons",
-      "webhookId": "d32cb452-136f-4bc0-9d87-3faf62a31518",
-      "credentials": {
-        "telegramApi": {
-          "id": "LMsqUyBEyhjX6Ju7",
-          "name": "Nazi agent"
-        }
-      }
+      "name": "Send draft with buttons"
     },
     {
       "parameters": {
@@ -300,14 +270,7 @@
       "typeVersion": 1.2,
       "position": [-1568, 640],
       "id": "4aafd6d2-b888-4120-9be5-7a570ef5b9b4",
-      "name": "Telegram Trigger",
-      "webhookId": "5dc96d86-9272-4990-8965-ff5503f09c7a",
-      "credentials": {
-        "telegramApi": {
-          "id": "LMsqUyBEyhjX6Ju7",
-          "name": "Nazi agent"
-        }
-      }
+      "name": "Telegram Trigger"
     },
     {
       "parameters": {
@@ -320,13 +283,6 @@
       "position": [-1120, 640],
       "id": "a48dc6cd-44b8-431c-94ad-484ed3b46b30",
       "name": "Answer Query",
-      "webhookId": "848e0a82-c5ea-4436-b357-8bc635c8eb50",
-      "credentials": {
-        "telegramApi": {
-          "id": "LMsqUyBEyhjX6Ju7",
-          "name": "Nazi agent"
-        }
-      },
       "onError": "continueRegularOutput"
     },
     {
@@ -415,14 +371,7 @@
       "typeVersion": 1.2,
       "position": [-448, 544],
       "id": "4807f816-b470-4619-b03f-ffe6edca1dae",
-      "name": "Mark as approved",
-      "webhookId": "dbab0ace-effc-42d5-a830-89d704fb4d27",
-      "credentials": {
-        "telegramApi": {
-          "id": "LMsqUyBEyhjX6Ju7",
-          "name": "Nazi agent"
-        }
-      }
+      "name": "Mark as approved"
     },
     {
       "parameters": {
@@ -438,14 +387,7 @@
       "typeVersion": 1.2,
       "position": [-432, 736],
       "id": "b6bfac7c-6cd9-4d65-b6b3-d5017e1d9349",
-      "name": "Mark as rejected",
-      "webhookId": "6e356450-de71-4a5a-baf9-24c83598ae4a",
-      "credentials": {
-        "telegramApi": {
-          "id": "LMsqUyBEyhjX6Ju7",
-          "name": "Nazi agent"
-        }
-      }
+      "name": "Mark as rejected"
     },
     {
       "parameters": {},
@@ -515,7 +457,7 @@
             {
               "id": "e1000000-0000-4000-8000-000000000001",
               "leftValue": "={{ $json.callback_query.from.id }}",
-              "rightValue": 2030490073,
+              "rightValue": 0,
               "operator": {
                 "type": "number",
                 "operation": "equals"
@@ -534,7 +476,7 @@
     },
     {
       "parameters": {
-        "chatId": "",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
         "text": "=🤖 Auto-handled ticket {{ $json.ticket_id }} ({{ $json.category }})\n\nCustomer: {{ $json.customer_message.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}\n\nReply that would be sent:\n{{ $json.draft_reply.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }}",
         "additionalFields": {
           "appendAttribution": false,
@@ -545,24 +487,16 @@
       "typeVersion": 1.2,
       "position": [1088, -48],
       "id": "5b3b6770-3960-40af-9443-3a239ef30720",
-      "name": "Auto-handled FYI",
-      "webhookId": "97af5e16-09e2-432e-a003-18fd98340c74",
-      "credentials": {
-        "telegramApi": {
-          "id": "LMsqUyBEyhjX6Ju7",
-          "name": "Nazi agent"
-        }
-      }
+      "name": "Auto-handled FYI"
     },
     {
       "parameters": {
         "operation": "upsert",
         "dataTableId": {
           "__rl": true,
-          "value": "ui50OeH1ZIabyIUb",
+          "value": "",
           "mode": "list",
-          "cachedResultName": "ticket log",
-          "cachedResultUrl": "/projects/q07oeXABmhl73jxK/datatables/ui50OeH1ZIabyIUb"
+          "cachedResultName": "ticket_log"
         },
         "filters": {
           "conditions": [
@@ -605,10 +539,9 @@
         "operation": "update",
         "dataTableId": {
           "__rl": true,
-          "value": "ui50OeH1ZIabyIUb",
+          "value": "",
           "mode": "list",
-          "cachedResultName": "ticket log",
-          "cachedResultUrl": "/projects/q07oeXABmhl73jxK/datatables/ui50OeH1ZIabyIUb"
+          "cachedResultName": "ticket_log"
         },
         "filters": {
           "conditions": [
@@ -625,140 +558,7 @@
             "decided_at": "={{ $now.toISO() }}"
           },
           "matchingColumns": [],
-          "schema": [
-            {
-              "id": "ticket_id",
-              "displayName": "ticket_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "number",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "created_at",
-              "displayName": "created_at",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "dateTime",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "category",
-              "displayName": "category",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "priority",
-              "displayName": "priority",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "needs_human",
-              "displayName": "needs_human",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "boolean",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "should_escalate",
-              "displayName": "should_escalate",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "boolean",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "kb_match_weak",
-              "displayName": "kb_match_weak",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "boolean",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "best_score",
-              "displayName": "best_score",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "number",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "route",
-              "displayName": "route",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "customer_message",
-              "displayName": "customer_message",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "draft_reply",
-              "displayName": "draft_reply",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "decision",
-              "displayName": "decision",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "decided_at",
-              "displayName": "decided_at",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
+          "schema": []
         },
         "options": {}
       },
@@ -774,10 +574,9 @@
         "operation": "update",
         "dataTableId": {
           "__rl": true,
-          "value": "ui50OeH1ZIabyIUb",
+          "value": "",
           "mode": "list",
-          "cachedResultName": "ticket log",
-          "cachedResultUrl": "/projects/q07oeXABmhl73jxK/datatables/ui50OeH1ZIabyIUb"
+          "cachedResultName": "ticket_log"
         },
         "filters": {
           "conditions": [
@@ -808,281 +607,85 @@
   ],
   "connections": {
     "When clicking ‘Execute workflow’": {
-      "main": [
-        [
-          {
-            "node": "Edit Fields",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Edit Fields", "type": "main", "index": 0 }]]
     },
     "Edit Fields": {
-      "main": [
-        [
-          {
-            "node": "Basic LLM Chain",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Basic LLM Chain", "type": "main", "index": 0 }]]
     },
     "Basic LLM Chain": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Code in JavaScript", "type": "main", "index": 0 }]]
     },
     "Groq Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Basic LLM Chain",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
+      "ai_languageModel": [[{ "node": "Basic LLM Chain", "type": "ai_languageModel", "index": 0 }]]
     },
     "Structured Output Parser": {
-      "ai_outputParser": [
-        [
-          {
-            "node": "Basic LLM Chain",
-            "type": "ai_outputParser",
-            "index": 0
-          }
-        ]
-      ]
+      "ai_outputParser": [[{ "node": "Basic LLM Chain", "type": "ai_outputParser", "index": 0 }]]
     },
     "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "Chroma Vector Store1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Chroma Vector Store1", "type": "main", "index": 0 }]]
     },
     "Chroma Vector Store1": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Code in JavaScript2", "type": "main", "index": 0 }]]
     },
     "Embeddings Ollama1": {
-      "ai_embedding": [
-        [
-          {
-            "node": "Chroma Vector Store1",
-            "type": "ai_embedding",
-            "index": 0
-          }
-        ]
-      ]
+      "ai_embedding": [[{ "node": "Chroma Vector Store1", "type": "ai_embedding", "index": 0 }]]
     },
     "Code in JavaScript2": {
-      "main": [
-        [
-          {
-            "node": "Basic LLM Chain1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Basic LLM Chain1", "type": "main", "index": 0 }]]
     },
     "Basic LLM Chain1": {
-      "main": [
-        [
-          {
-            "node": "Edit Fields1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Edit Fields1", "type": "main", "index": 0 }]]
     },
     "Groq Chat Model1": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Basic LLM Chain1",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
+      "ai_languageModel": [[{ "node": "Basic LLM Chain1", "type": "ai_languageModel", "index": 0 }]]
     },
     "Edit Fields1": {
       "main": [
         [
-          {
-            "node": "Can auto-send?",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "ticket log",
-            "type": "main",
-            "index": 0
-          }
+          { "node": "Can auto-send?", "type": "main", "index": 0 },
+          { "node": "ticket log", "type": "main", "index": 0 }
         ]
       ]
     },
     "Telegram Trigger": {
-      "main": [
-        [
-          {
-            "node": "Is it me?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Is it me?", "type": "main", "index": 0 }]]
+    },
+    "Is it me?": {
+      "main": [[{ "node": "Answer Query", "type": "main", "index": 0 }]]
     },
     "Answer Query": {
-      "main": [
-        [
-          {
-            "node": "Parse tap",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Parse tap", "type": "main", "index": 0 }]]
     },
     "Parse tap": {
-      "main": [
-        [
-          {
-            "node": "Switch",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Switch", "type": "main", "index": 0 }]]
     },
     "Switch": {
       "main": [
-        [
-          {
-            "node": "Mark as approved",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Mark as rejected",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Mark as approved", "type": "main", "index": 0 }],
+        [{ "node": "Mark as rejected", "type": "main", "index": 0 }]
       ]
     },
     "Mark as approved": {
-      "main": [
-        [
-          {
-            "node": "Next steps after approval",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Next steps after approval", "type": "main", "index": 0 }]]
     },
     "Mark as rejected": {
-      "main": [
-        [
-          {
-            "node": "Next steps after rejection",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Next steps after rejection", "type": "main", "index": 0 }]]
     },
     "Next steps after approval": {
-      "main": [
-        [
-          {
-            "node": "Log approved",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Log approved", "type": "main", "index": 0 }]]
     },
     "Next steps after rejection": {
-      "main": [
-        [
-          {
-            "node": "Log rejected",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Log rejected", "type": "main", "index": 0 }]]
     },
     "Can auto-send?": {
       "main": [
-        [
-          {
-            "node": "Auto-send reply to customer",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Send draft with buttons",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{ "node": "Auto-send reply to customer", "type": "main", "index": 0 }],
+        [{ "node": "Send draft with buttons", "type": "main", "index": 0 }]
       ]
     },
     "Auto-send reply to customer": {
-      "main": [
-        [
-          {
-            "node": "Auto-handled FYI",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Is it me?": {
-      "main": [
-        [
-          {
-            "node": "Answer Query",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Auto-handled FYI", "type": "main", "index": 0 }]]
     }
   },
-  "pinData": {},
-  "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "379476ae595cfd5ed98649e90c0d24f1914abbb0338fae0df72c98b18dd7bf4e"
-  }
+  "pinData": {}
 }

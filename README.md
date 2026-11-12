@@ -1,386 +1,113 @@
 # Brightboard AI Support Agent
 
-An AI-powered customer support automation system built with **n8n, Retrieval-Augmented Generation (RAG), ChromaDB, Ollama, and Groq**.
+An n8n workflow that triages customer support tickets, drafts replies from a company knowledge base (RAG), and keeps a human in control of anything risky. Approval happens inside Telegram with a single tap.
 
-Brightboard AI Support Agent is designed to automate the initial stages of customer support: understanding incoming tickets, categorizing issues, retrieving relevant help-center information, and drafting context-aware responses.
+Built as a hands-on project for AI automation: structured LLM output, retrieval with a quality guard, risk-based routing, human-in-the-loop approval, logging, and error alerting.
 
-A human reviewer remains in control of the final response through a Telegram-based approval workflow.
+> **Status:** working prototype. The ticket input is a manual trigger and the "auto-send" step is a placeholder (see [Limitations](#limitations-and-roadmap)).
 
-> **Project status:** Functional prototype under development. Ticket classification, knowledge-base ingestion, retrieval, response generation, and Telegram approval have been implemented and tested individually. End-to-end approval handling and customer delivery are still being completed.
+## What it does
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Technology Stack](#technology-stack)
-- [How It Works](#how-it-works)
-- [Knowledge Base and RAG](#knowledge-base-and-rag)
-- [Human-in-the-Loop Approval](#human-in-the-loop-approval)
-- [Example Ticket](#example-ticket)
-- [Challenges and Engineering Decisions](#challenges-and-engineering-decisions)
-- [Current Limitations](#current-limitations)
-- [Roadmap](#roadmap)
-- [Project Structure](#project-structure)
-- [Security Notes](#security-notes)
-
----
-
-## Overview
-
-Traditional customer support systems often require agents to manually read tickets, identify the issue, search documentation, and write responses.
-
-Brightboard aims to automate much of this repetitive work while retaining human oversight.
-
-The system combines structured ticket classification with semantic knowledge retrieval and LLM-based response generation.
-
-Instead of allowing an LLM to answer entirely from its pretrained knowledge, the system retrieves relevant company documentation and supplies it as context when generating a response.
-
-Every generated response is intended to be reviewed before it reaches a customer.
-
-## Features
-
-### Ticket Classification
-
-- Categorizes tickets into:
-  - Billing
-  - Refund
-  - Bug
-  - Account access
-  - How-to
-  - Feature request
-  - Other
-- Assigns a priority:
-  - Low
-  - Medium
-  - High
-- Determines whether human intervention is required.
-- Identifies issues that should be escalated.
-
-### Retrieval-Augmented Generation
-
-- Retrieves relevant help-center articles from ChromaDB.
-- Uses semantic search instead of relying only on keyword matching.
-- Supplies retrieved documentation to the response-generation model.
-- Limits company-policy answers to the provided knowledge base.
-
-### AI Response Generation
-
-- Generates professional, customer-facing draft responses.
-- Addresses multiple concerns within the same ticket.
-- Uses retrieved documentation as supporting context.
-- Avoids claiming that actions have been completed when they have not.
-
-### Human-in-the-Loop Approval
-
-- Sends generated drafts to Telegram.
-- Provides Approve and Decline options.
-- Restricts approval to an authorized Telegram user.
-- Uses the approval result to route the workflow.
-
-### Knowledge-Base Ingestion
-
-- Loads help-center articles from a JSON source.
-- Formats article content and metadata.
-- Splits documents into smaller chunks.
-- Generates embeddings with Ollama.
-- Stores vectors in ChromaDB.
-
----
+1. **Classifies** each ticket into a category (`billing`, `refund`, `bug`, `account_access`, `how_to`, `feature_request`, `other`), a priority, and two risk flags: `needs_human` and `should_escalate`.
+2. **Retrieves** the 3 most relevant help-center articles from ChromaDB.
+3. **Checks retrieval quality.** If the best match is too distant, the ticket is flagged as having no knowledge-base match.
+4. **Drafts a reply** using only the retrieved articles.
+5. **Routes** the ticket:
+   - Low-risk and well-covered: auto-handled, no approval needed.
+   - Everything else: sent to Telegram with **Approve / Reject** buttons.
+6. **Logs** every ticket and the human decision to an n8n Data table.
+7. **Alerts** the owner in Telegram if any workflow fails.
 
 ## Architecture
 
-### Main support workflow
-
 ```mermaid
 flowchart TD
-    A[Incoming Ticket] --> B[Ticket Classification]
-    B --> C[Structured Output]
-    C --> D[ChromaDB Retrieval]
-    D --> E[Prepare Response Context]
-    E --> F[Groq Response Generation]
-    F --> G[Telegram Human Approval]
-    G --> H{Approval Decision}
-    H -->|Approved| I[Customer Delivery - Planned]
-    H -->|Declined| J[Rejected / Stop]
+    A[Ticket in] --> B[LLM classifier<br/>structured JSON output]
+    B --> C[Embed query<br/>Ollama nomic-embed-text]
+    C --> D[ChromaDB search<br/>top 3]
+    D --> E{Best distance<br/>over 0.75?}
+    E -- yes --> F[kb_match_weak = true<br/>no articles passed to the LLM]
+    E -- no --> G[kb_match_weak = false]
+    F --> H[LLM drafts reply]
+    G --> H
+    H --> I[(Log ticket)]
+    H --> J{Safe to auto-send?}
+    J -- yes --> K[Auto-send<br/>placeholder + Telegram FYI]
+    J -- no --> L[Telegram message<br/>Approve / Reject]
+    L --> M[Callback workflow<br/>owner-only check]
+    M --> N[(Log decision)]
 ```
 
-### Knowledge ingestion workflow
+### Auto-send rule
 
-```mermaid
-flowchart TD
-    A[Help Center JSON] --> B[HTTP Request]
-    B --> C[Format Articles]
-    C --> D[Default Data Loader]
-    D --> E[Text Splitting]
-    E --> F[Ollama Embeddings]
-    F --> G[ChromaDB Collection]
-```
+A reply is only sent without approval when **all** of these are true:
 
-The ingestion workflow and the ticket-processing workflow are separate conceptual processes. This prevents the knowledge base from being unnecessarily re-ingested every time a customer ticket is processed.
+- `needs_human` is `false`
+- `should_escalate` is `false`
+- `kb_match_weak` is `false`
+- the category is not `billing` or `refund`
 
----
+The check is written to **fail safe**: if any field is missing or unexpected, the condition is false and the ticket goes to human approval.
 
-## Technology Stack
+## Key design decisions
 
-| Technology                           | Purpose                                                    |
-| ------------------------------------ | ---------------------------------------------------------- |
-| n8n                                  | Workflow orchestration and automation                      |
-| Groq                                 | LLM inference                                              |
-| GPT-OSS 120B (`openai/gpt-oss-120b`) | Ticket classification and response generation              |
-| ChromaDB                             | Vector database                                            |
-| Ollama                               | Local embedding generation                                 |
-| `nomic-embed-text`                   | Text embedding model                                       |
-| LangChain nodes                      | LLM chains, document loading, and vector-store integration |
-| Telegram Bot API                     | Human approval interface                                   |
-| Docker Desktop                       | Local container management                                 |
-| GitHub                               | Source control and project documentation                   |
+| Decision                                                    | Why                                                                                                                                                                       |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Money-related tickets always need approval                  | A wrong refund or billing statement has real cost. Policy decisions stay with a person.                                                                                   |
+| Retrieval quality guard                                     | Chroma returns a distance (lower is better). Above 0.75, the draft prompt receives _no_ articles, so the model cannot be misled by unrelated text.                        |
+| "Absence of information is not evidence" prompt rule        | Early tests showed the model saying a feature "does not exist" just because no article mentioned it. The prompt now forbids that and asks it to say it could not confirm. |
+| No claims of actions taken                                  | The draft must never say it forwarded, escalated, or refunded anything, because the workflow does not do those things.                                                    |
+| Telegram callback buttons instead of the Send and Wait node | The built-in approval uses URL buttons that open a browser page. Callback buttons keep the whole flow inside Telegram.                                                    |
+| Separate workflow for button taps                           | A callback arrives as a brand-new execution, so a dedicated workflow listens for it.                                                                                      |
+| Only the owner can tap                                      | The callback handler compares the sender's Telegram user ID before doing anything.                                                                                        |
+| Temperature 0 on both LLM calls                             | More consistent classification and drafts.                                                                                                                                |
+| Log first, send second                                      | Logging runs in parallel and continues on error, so a logging failure never blocks a ticket.                                                                              |
 
----
+## Observed behavior
 
-## How It Works
+Manual tests during development (not a formal evaluation):
 
-### 1. Ticket Input
+| Test ticket                            | Best distance | Result                                                                                                                |
+| -------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------- |
+| "How do I update my credit card?"      | 0.65          | KB match ok. Draft used only the retrieved steps and card brands.                                                     |
+| "Do you have a dark mode on mobile?"   | 0.92          | No KB match. After the prompt fix, the draft says it could not confirm the feature and does not promise any action.   |
+| Refund request (annual plan, 4 months) | 0.83          | Retrieved articles were about payments and plans, not refunds, which exposed a gap in retrieval for refund questions. |
 
-The current development workflow uses an n8n Manual Trigger and an Edit Fields node to provide a test ticket.
+These informed the 0.75 threshold. A proper labeled evaluation set is on the roadmap.
 
-A production ticket intake mechanism is planned.
+## Tech stack
 
-### 2. Classification
+- **n8n** (workflow orchestration)
+- **Groq** `openai/gpt-oss-120b` (classification and drafting)
+- **Ollama** `nomic-embed-text` (embeddings)
+- **ChromaDB** (vector store, self-hosted)
+- **Telegram Bot API** (approval and alerts)
+- **n8n Data tables** (ticket log)
 
-The first LLM chain analyzes the ticket and returns structured information.
+## Getting started
 
-Example output:
+See [`workflows/README.md`](workflows/README.md) for step-by-step setup: credentials, importing the workflows, loading the knowledge base, and testing.
 
-```json
-{
-  "ticket_id": 8,
-  "category": "refund",
-  "priority": "medium",
-  "needs_human": false,
-  "should_escalate": false,
-  "reasoning": "The customer requests a refund outside the standard eligibility window."
-}
-```
+## Limitations and roadmap
 
-A Structured Output Parser is used to enforce the expected output format.
+**Current limitations**
 
-### 3. Knowledge Retrieval
+- The input is a hardcoded manual trigger, not a real ticket source.
+- The "Auto-send reply to customer" node is a placeholder that only posts an FYI to Telegram. Nothing is sent to a customer yet.
+- Rejecting a draft only logs the decision. There is no regenerate flow.
+- The classifier can be inconsistent on borderline tickets (for example `how_to` vs `feature_request`).
+- Refund questions currently retrieve weakly, so the knowledge base needs a dedicated refund-policy article.
+- No formal evaluation yet.
 
-The classified ticket is passed to ChromaDB.
+**Planned**
 
-The current retrieval configuration uses:
+- [ ] Webhook trigger for incoming tickets
+- [ ] Real reply sending (email or helpdesk API) with duplicate-send protection
+- [ ] Evaluation set of 40 to 50 labeled tickets: category accuracy, recall on `needs_human`, and draft approval rate
+- [ ] Regenerate button for rejected drafts
+- [ ] Refund-policy article in the knowledge base
+- [ ] `docker-compose` for n8n, ChromaDB, and Ollama
 
-- Collection: `brightboard_knowledge_base`
-- Embedding model: `nomic-embed-text:latest`
-- Retrieval mode: Load
-- Top K: 3 documents
+## Privacy
 
-The retrieved documents are combined into a knowledge context for the next stage.
-
-### 4. Response Generation
-
-Groq's `openai/gpt-oss-120b` generates a draft using:
-
-- Original customer message
-- Ticket category
-- Ticket priority
-- Retrieved help-center content
-
-The prompt includes grounding rules to reduce unsupported policy claims and prevent the model from pretending that actions have already been completed.
-
-### 5. Human Approval
-
-The generated draft is sent to Telegram using n8n's Send and Wait for Response operation.
-
-The approval configuration supports:
-
-- Approve
-- Disapprove / Decline
-- Authorized approver restrictions
-
-The returned decision contains an `approved` Boolean value.
-
-Example:
-
-```json
-{
-  "data": {
-    "approved": true,
-    "responder": {
-      "id": "TELEGRAM_USER_ID",
-      "source": "telegram"
-    }
-  }
-}
-```
-
-A Switch node uses this value to separate approved and rejected tickets.
-
-Customer delivery is not yet implemented.
-
----
-
-## Knowledge Base and RAG
-
-The project uses a JSON-based Brightboard help center.
-
-Each article contains an identifier, title, and body.
-
-During ingestion, article content is formatted into text documents and supplied to the Default Data Loader.
-
-Current text-splitting configuration:
-
-| Setting         |              Value |
-| --------------- | -----------------: |
-| Chunk size      |     700 characters |
-| Chunk overlap   |     100 characters |
-| Retrieval top K |                  3 |
-| Embedding model | `nomic-embed-text` |
-| Vector database |           ChromaDB |
-
-The purpose of this approach is to retrieve relevant information without passing the entire knowledge base to the language model for every ticket.
-
-Knowledge-base source:
-
-[Brightboard Help Center JSON](https://github.com/naziwoprc/Brightboard-AI-Support-Agent/blob/main/help-center.json)
-
----
-
-## Example Ticket
-
-**Customer message:**
-
-> Refund me. I bought the annual plan 4 months ago and the app is too slow.
-
-The system identifies the primary category as `refund` and assigns medium priority.
-
-The retrieval stage finds the refund policy article, which states that annual plans are eligible for a full refund within 30 days of purchase or renewal.
-
-The response-generation stage must therefore:
-
-1. Explain the standard refund eligibility window.
-2. Avoid making the final refund decision.
-3. Acknowledge the app-performance complaint.
-4. Request relevant device and operating-system information.
-5. Avoid claiming that a refund or escalation has already been processed.
-
-The resulting response is sent for human review rather than directly to the customer.
-
----
-
-## Challenges and Engineering Decisions
-
-The project involved several practical issues beyond simply connecting AI nodes. The development log documents these in more detail.
-
-Key engineering decisions included:
-
-- Using `host.docker.internal` to connect n8n containers to services running on the host machine.
-- Separating knowledge ingestion from ticket processing.
-- Formatting JSON articles into actual document text before embedding.
-- Using structured output for classification.
-- Combining retrieved documents into a single context before response generation.
-- Requiring human approval before customer delivery.
-- Checking actual Telegram approval output instead of guessing the response field.
-
----
-
-## Current Limitations
-
-This is a development prototype, not a production-ready customer support service.
-
-The following work remains:
-
-- Complete and test the end-to-end approval and rejection branches.
-- Preserve ticket information and generated drafts across the Telegram wait operation.
-- Resolve Telegram button navigation so approval works directly inside Telegram.
-- Finalize Telegram message formatting and parsing.
-- Implement actual customer-response delivery.
-- Replace the manual test trigger with a real ticket intake mechanism.
-- Build a labeled evaluation dataset and measure classification and response quality.
-- Add robust error handling, logging, and duplicate-ingestion protection.
-
----
-
-## Roadmap
-
-### Workflow Completion
-
-- [x] Ticket classification
-- [x] Structured classification output
-- [x] Help-center ingestion workflow
-- [x] ChromaDB retrieval
-- [x] Response context preparation
-- [x] AI draft generation
-- [x] Telegram approval configuration
-- [x] Approval / rejection routing configuration
-- [ ] Preserve original ticket data across approval
-- [ ] Verify both approval outcomes end to end
-- [ ] Complete customer delivery
-
-### Evaluation
-
-- [ ] Prepare 75 labeled test tickets
-- [ ] Measure classification accuracy
-- [ ] Evaluate priority assignment
-- [ ] Evaluate retrieval relevance
-- [ ] Evaluate response grounding
-- [ ] Measure unsupported claims and hallucinations
-- [ ] Document evaluation results
-
-### Production Readiness
-
-- [ ] Real ticket intake
-- [ ] Persistent ticket storage
-- [ ] Retry and failure handling
-- [ ] Logging and monitoring
-- [ ] Secure credential management
-- [ ] Deployment documentation
-
----
-
-## Project Structure
-
-The intended repository structure is:
-
-```text
-Brightboard-AI-Support-Agent/
-│
-├── README.md
-│
-├── workflows/
-│   ├── support-agent.json
-│   └── knowledge-ingestion.json
-│
-├── knowledge-base/
-│   └── help-center.json
-│
-├── evaluation/
-│   └── test-tickets.json
-│
-└── docs/
-    ├── architecture.md
-    └── development-log.md
-```
-
-Only add workflow exports and evaluation files after they have been validated and sanitized.
-
----
-
-## Security Notes
-
-- API keys and bot tokens must never be committed to GitHub.
-- n8n credential references and exported workflow identifiers should be reviewed before publishing.
-- Telegram chat IDs and personal identifiers should be replaced with placeholders in public examples.
-- Local service URLs may need to be changed when deploying to another environment.
-- The public repository should not contain n8n database files, backups, or `.env` files.
-
----
-
-## Author
-
-Developed as an AI engineering portfolio project to explore workflow automation, RAG systems, LLM integration, and human-in-the-loop AI applications.
-
-**Repository:** [Brightboard AI Support Agent](https://github.com/naziwoprc/Brightboard-AI-Support-Agent)
+The workflow files in this repo contain no credentials, chat IDs, or instance identifiers. Ticket logs contain customer message text, so keep any real log data private and use sample tickets in demos.
